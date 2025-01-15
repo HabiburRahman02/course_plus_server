@@ -26,6 +26,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         const courseCollection = client.db('courseDB').collection('courses');
+        const feedbackCollection = client.db('courseDB').collection('feedbacks');
 
 
         // course related apis
@@ -38,10 +39,17 @@ async function run() {
             const result = await courseCollection
                 .find()
                 .sort({totalEnrollment: -1})
-                .limit(6)
+                .limit(4)
                 .toArray()
                 res.send(result);
         })
+
+        // feedback related apis
+        app.get('/feedbacks', async (req, res) => {
+            const result = await feedbackCollection.find().toArray();
+            res.send(result);
+        })
+
 
 
         // Connect the client to the server	(optional starting in v4.7)
