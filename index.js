@@ -89,6 +89,15 @@ async function run() {
             res.send(result);
         })
 
+        // total class, total ass, total submission count
+        app.get('/courseCount/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const courses = await courseCollection.find(query).toArray();
+            const totalEnrollment = courses.reduce((acc, course) => acc + course.totalEnrollment, 0);
+            res.send({ totalEnrollment })
+        })
+
         // feedback related apis
         app.get('/feedbacks', async (req, res) => {
             const result = await feedbackCollection.find().toArray();
