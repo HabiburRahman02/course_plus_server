@@ -30,14 +30,34 @@ async function run() {
 
 
         // course related apis
+        app.post('/courses', async (req, res) => {
+            const course = req.body;
+            const result = await courseCollection.insertOne(course)
+            res.send(result);
+        })
+
+        app.get('/course/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email }
+            const result = await courseCollection.find(query).toArray();
+            res.send(result);
+        })
+
         app.get('/courses', async (req, res) => {
             const result = await courseCollection.find({ status: "approved" }).toArray();
             res.send(result);
         })
 
-        app.get('/course/:id', async(req,res)=>{
+        app.get('/specificCourseForUpdate/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) }
+            const result = await courseCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.get('/course/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
             const result = await courseCollection.findOne(query);
             res.send(result);
         })
@@ -45,10 +65,21 @@ async function run() {
         app.get('/popular-courses', async (req, res) => {
             const result = await courseCollection
                 .find()
-                .sort({totalEnrollment: -1})
+                .sort({ totalEnrollment: -1 })
                 .limit(4)
                 .toArray()
-                res.send(result);
+            res.send(result);
+        })
+
+        app.patch('/updateCourse/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const course = req.body;
+            const updateDoc = {
+                $set: course
+            }
+            const result = await courseCollection.updateOne(filter, updateDoc);
+            res.send(result);
         })
 
         // feedback related apis
