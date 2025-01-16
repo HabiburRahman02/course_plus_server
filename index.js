@@ -27,6 +27,8 @@ async function run() {
     try {
         const courseCollection = client.db('courseDB').collection('courses');
         const feedbackCollection = client.db('courseDB').collection('feedbacks');
+        const assignmentCollection = client.db('courseDB').collection('assignments');
+        const usersCollection = client.db('courseDB').collection('users');
 
 
         // course related apis
@@ -97,6 +99,27 @@ async function run() {
             const totalEnrollment = courses.reduce((acc, course) => acc + course.totalEnrollment, 0);
             res.send({ totalEnrollment })
         })
+
+        // assignment related apis
+        app.post('/assignments',async(req,res)=>{
+            const assignment = req.body;
+            const result = await assignmentCollection.insertOne(assignment);
+            res.send(result);
+        })
+
+
+        // user related apis
+        app.post('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = req.body;
+            const isExist = await usersCollection.findOne(query);
+            if (isExist) {
+              return res.send({ message: 'already store this user in database' })
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result)
+          })
 
         // feedback related apis
         app.get('/feedbacks', async (req, res) => {
