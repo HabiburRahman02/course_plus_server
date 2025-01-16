@@ -1,6 +1,7 @@
 const express = require('express')
 require('dotenv').config()
 const app = express()
+const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
@@ -30,6 +31,45 @@ async function run() {
         const assignmentCollection = client.db('courseDB').collection('assignments');
         const usersCollection = client.db('courseDB').collection('users');
 
+
+        // jwt related apis
+        app.post('/jwt', async(req,res)=>{
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '30d'})
+            res.send({token});
+        })
+
+
+        // user related apis
+        app.get('/users', async (req, res) => {
+            const result = await usersCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.post('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = req.body;
+            const isExist = await usersCollection.findOne(query);
+            if (isExist) {
+                return res.send({ message: 'already store this user in database' })
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result)
+        })
+
+        // make admin
+        app.patch('/user/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    role: 'admin'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc);
+            res.send(result);
+        })
 
         // course related apis
         app.post('/courses', async (req, res) => {
@@ -108,36 +148,6 @@ async function run() {
         })
 
 
-        // user related apis
-        app.get('/users', async (req, res) => {
-            const result = await usersCollection.find().toArray();
-            res.send(result);
-        })
-
-        app.post('/users/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { email };
-            const user = req.body;
-            const isExist = await usersCollection.findOne(query);
-            if (isExist) {
-                return res.send({ message: 'already store this user in database' })
-            }
-            const result = await usersCollection.insertOne(user);
-            res.send(result)
-        })
-
-        // make admin
-        app.patch('/user/admin/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: new ObjectId(id) }
-            const updatedDoc = {
-                $set: {
-                    role: 'admin'
-                }
-            }
-            const result = await usersCollection.updateOne(filter, updatedDoc);
-            res.send(result);
-        })
 
         // feedback related apis
         app.get('/feedbacks', async (req, res) => {
