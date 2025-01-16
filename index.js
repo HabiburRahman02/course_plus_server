@@ -82,6 +82,13 @@ async function run() {
             res.send(result);
         })
 
+        app.delete('/courseDelete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await courseCollection.deleteOne(query);
+            res.send(result);
+        })
+
         // feedback related apis
         app.get('/feedbacks', async (req, res) => {
             const result = await feedbackCollection.find().toArray();
