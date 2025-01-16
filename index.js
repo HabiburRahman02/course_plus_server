@@ -101,7 +101,7 @@ async function run() {
         })
 
         // assignment related apis
-        app.post('/assignments',async(req,res)=>{
+        app.post('/assignments', async (req, res) => {
             const assignment = req.body;
             const result = await assignmentCollection.insertOne(assignment);
             res.send(result);
@@ -109,17 +109,22 @@ async function run() {
 
 
         // user related apis
+        app.get('/users',async(req,res)=>{
+            const result= await usersCollection.find().toArray();
+            res.send(result);
+        })
+
         app.post('/users/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email };
             const user = req.body;
             const isExist = await usersCollection.findOne(query);
             if (isExist) {
-              return res.send({ message: 'already store this user in database' })
+                return res.send({ message: 'already store this user in database' })
             }
             const result = await usersCollection.insertOne(user);
             res.send(result)
-          })
+        })
 
         // feedback related apis
         app.get('/feedbacks', async (req, res) => {
