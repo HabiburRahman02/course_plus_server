@@ -174,6 +174,30 @@ async function run() {
             res.send(result);
         })
 
+        app.patch('/allCoursesApproved/:id', async(req,res)=>{
+            const id = req.params.id;
+            const query= {_id: new ObjectId(id)};
+            const updatedDoc = {
+                $set: {
+                    status: 'approved'
+                }
+            }
+            const result = await courseCollection.updateOne(query,updatedDoc);
+            res.send(result)
+        })
+
+        app.patch('/allCoursesRejected/:id', async(req,res)=>{
+            const id = req.params.id;
+            const query= {_id: new ObjectId(id)};
+            const updatedDoc = {
+                $set: {
+                    status: 'rejected'
+                }
+            }
+            const result = await courseCollection.updateOne(query,updatedDoc);
+            res.send(result)
+        })
+
         app.delete('/courseDelete/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
@@ -189,6 +213,8 @@ async function run() {
             const totalEnrollment = courses.reduce((acc, course) => acc + course.totalEnrollment, 0);
             res.send({ totalEnrollment })
         })
+
+
 
         // assignment related apis
         app.post('/assignments', async (req, res) => {
