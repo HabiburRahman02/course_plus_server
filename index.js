@@ -40,7 +40,7 @@ async function run() {
         })
 
         // middlewares
-        const verifyToken = async(req, res, next) => {
+        const verifyToken = async (req, res, next) => {
             // console.log('token', req.headers.authorization);
             if (!req.headers.authorization) {
                 return res.status(401).send({ message: 'unauthorized access' })
@@ -55,12 +55,12 @@ async function run() {
             })
         }
 
-        const verifyAdmin = async(req,res,next)=>{
+        const verifyAdmin = async (req, res, next) => {
             const email = req.decoded.email;
-            const query = {email: email};
+            const query = { email: email };
             const user = await usersCollection.findOne(query);
             const isAdmin = user?.role === 'admin'
-            if(!isAdmin){
+            if (!isAdmin) {
                 return res.status(403).send({ message: 'forbidden access' })
             }
             next();
@@ -69,6 +69,12 @@ async function run() {
 
 
         // user related apis
+        app.get('/userSpecific/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const result = await usersCollection.findOne(query);
+            res.send(result);
+        })
         app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result);
@@ -103,7 +109,7 @@ async function run() {
         })
 
         // make admin
-        app.patch('/user/admin/:id', verifyToken,verifyAdmin, async (req, res) => {
+        app.patch('/user/admin/:id', verifyToken, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
@@ -123,7 +129,7 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/allCourses', async(req,res)=>{
+        app.get('/allCourses', async (req, res) => {
             const result = await courseCollection.find().toArray();
             res.send(result);
         })
@@ -174,27 +180,27 @@ async function run() {
             res.send(result);
         })
 
-        app.patch('/allCoursesApproved/:id', async(req,res)=>{
+        app.patch('/allCoursesApproved/:id', async (req, res) => {
             const id = req.params.id;
-            const query= {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const updatedDoc = {
                 $set: {
                     status: 'approved'
                 }
             }
-            const result = await courseCollection.updateOne(query,updatedDoc);
+            const result = await courseCollection.updateOne(query, updatedDoc);
             res.send(result)
         })
 
-        app.patch('/allCoursesRejected/:id', async(req,res)=>{
+        app.patch('/allCoursesRejected/:id', async (req, res) => {
             const id = req.params.id;
-            const query= {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const updatedDoc = {
                 $set: {
                     status: 'rejected'
                 }
             }
-            const result = await courseCollection.updateOne(query,updatedDoc);
+            const result = await courseCollection.updateOne(query, updatedDoc);
             res.send(result)
         })
 
