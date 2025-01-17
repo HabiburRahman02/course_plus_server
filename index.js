@@ -244,6 +244,31 @@ async function run() {
             res.send(result);
         })
 
+        app.patch('/allTeacherApproved/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    status: 'approved'
+                }
+            }
+            const result = await teacherCollection.updateOne(query, updatedDoc);
+            res.send(result)
+        })
+
+        app.patch('/allTeacherRejected/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    status: 'rejected'
+                }
+            }
+            const result = await teacherCollection.updateOne(query, updatedDoc);
+            res.send(result)
+        })
+
+
 
         // feedback related apis
         app.get('/feedbacks', async (req, res) => {
