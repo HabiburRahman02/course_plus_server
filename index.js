@@ -40,7 +40,8 @@ async function run() {
         })
 
         // middlewares
-        const verifyToken = (req, res, next) => {
+        const verifyToken = async(req, res, next) => {
+            // console.log('token', req.headers.authorization);
             if (!req.headers.authorization) {
                 return res.status(401).send({ message: 'unauthorized access' })
             }
@@ -54,12 +55,39 @@ async function run() {
             })
         }
 
+        const verifyAdmin = async(req,res,next)=>{
+            const email = req.decoded.email;
+            const query = {email: email};
+            const user = await usersCollection.findOne(query);
+            const isAdmin = user?.role === 'admin'
+            if(!isAdmin){
+                return res.status(403).send({ message: 'forbidden access' })
+            }
+            next();
+        }
+
 
 
         // user related apis
-        app.get('/users', verifyToken, async (req, res) => {
+        app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result);
+        })
+
+        app.get('/users/admin/:email', verifyToken, async (req, res) => {
+            const email = req.params.email;
+            // console.log('email', req.decoded.email);
+            if (email !== req.decoded.email) {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
+
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            let admin = false;
+            if (user) {
+                admin = user?.role === 'admin';
+            }
+            res.send({ admin });
         })
 
         app.post('/users/:email', async (req, res) => {
@@ -75,7 +103,7 @@ async function run() {
         })
 
         // make admin
-        app.patch('/user/admin/:id', async (req, res) => {
+        app.patch('/user/admin/:id', verifyToken,verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const updatedDoc = {
@@ -87,10 +115,16 @@ async function run() {
             res.send(result);
         })
 
+
         // course related apis
         app.post('/courses', async (req, res) => {
             const course = req.body;
             const result = await courseCollection.insertOne(course)
+            res.send(result);
+        })
+
+        app.get('/allCourses', async(req,res)=>{
+            const result = await courseCollection.find().toArray();
             res.send(result);
         })
 
