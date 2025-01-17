@@ -30,6 +30,7 @@ async function run() {
         const feedbackCollection = client.db('courseDB').collection('feedbacks');
         const assignmentCollection = client.db('courseDB').collection('assignments');
         const usersCollection = client.db('courseDB').collection('users');
+        const teacherCollection = client.db('courseDB').collection('teachers');
 
 
         // jwt related apis
@@ -229,6 +230,19 @@ async function run() {
             res.send(result);
         })
 
+
+
+        // teachers related apis
+        app.get('/teachers', async (req, res) => {
+            const result = await teacherCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.post('/teachers', async (req, res) => {
+            const teacher = req.body;
+            const result = await teacherCollection.insertOne(teacher)
+            res.send(result);
+        })
 
 
         // feedback related apis
