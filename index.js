@@ -3,6 +3,7 @@ require('dotenv').config()
 const app = express()
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
 
@@ -154,12 +155,12 @@ async function run() {
             res.send(result)
         })
 
-        app.get('/course/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await courseCollection.findOne(query);
-            res.send(result);
-        })
+        // app.get('/course/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: new ObjectId(id) };
+        //     const result = await courseCollection.findOne(query);
+        //     res.send(result);
+        // })
 
         app.get('/popular-courses', async (req, res) => {
             const result = await courseCollection
@@ -276,6 +277,21 @@ async function run() {
             res.send(result);
         })
 
+        // payment related apis
+        app.post('/create-payment-intent', async (req, res) => {
+            const { price } = req.body;
+            const amount = parseInt(price * 100)
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            })
+
+            res.send({
+                clientSecret: paymentIntent.client_secret
+            })
+        })
 
 
         // Connect the client to the server	(optional starting in v4.7)
