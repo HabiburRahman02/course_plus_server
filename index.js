@@ -10,12 +10,14 @@ const port = process.env.PORT || 5000
 // middleware
 app.use(cors())
 app.use(express.json())
+// console.log(stripe);
 
 
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster3.ggy8e.mongodb.net/?retryWrites=true&w=majority&appName=Cluster3`
 
+// console.log(uri);
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
     serverApi: {
@@ -32,6 +34,7 @@ async function run() {
         const assignmentCollection = client.db('courseDB').collection('assignments');
         const usersCollection = client.db('courseDB').collection('users');
         const teacherCollection = client.db('courseDB').collection('teachers');
+        const enrollCollection = client.db('courseDB').collection('enrolls');
 
 
         // jwt related apis
@@ -277,16 +280,35 @@ async function run() {
             res.send(result);
         })
 
+
+        // my enroll course related apis
+        app.get('/myEnrollCourse/:email',verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const query = {email}
+            const result = await enrollCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.post('/myEnrollCourse', verifyToken, async (req, res) => {
+            const course = req.body;
+            const result = await enrollCollection.insertOne(course);
+            res.send(result);
+        })
+       
+
+
+
         // payment related apis
         app.post('/create-payment-intent', async (req, res) => {
             const { price } = req.body;
             const amount = parseInt(price * 100)
+            console.log('amount from intent', amount);
 
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount,
                 currency: 'usd',
                 payment_method_types: ['card']
-            })
+            });
 
             res.send({
                 clientSecret: paymentIntent.client_secret
