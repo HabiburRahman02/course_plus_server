@@ -74,16 +74,21 @@ async function run() {
 
 
         // user related apis
-        app.get('/userSpecific/:email', async (req, res) => {
+        app.get('/userSpecific/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const query = { email }
             const result = await usersCollection.findOne(query);
             res.send(result);
         })
+
         app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result);
         })
+        // app.get('/allUsers', verifyToken,verifyAdmin, async (req, res) => {
+        //     const result = await usersCollection.find().toArray();
+        //     res.send(result);
+        // })
 
         app.get('/users/admin/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
@@ -228,6 +233,24 @@ async function run() {
 
 
         // assignment related apis
+        // app.get('/assignments/countAss',async(req,res)=>{
+        //     const count = await assignmentCollection.estimatedDocumentCount();
+        //     res.send(count)
+        // })
+        app.get('/assignments/:byCourseId',verifyToken, async (req, res) => {
+            const id = req.params.byCourseId;
+            const query = { courseId: id };
+            const result = await assignmentCollection.find(query).toArray();
+            res.send(result); 
+        })
+
+        app.get('/assignment/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) };
+            const result = await assignmentCollection.findOne(query);
+            res.send(result)
+        })
+
         app.post('/assignments', async (req, res) => {
             const assignment = req.body;
             const result = await assignmentCollection.insertOne(assignment);
@@ -282,9 +305,9 @@ async function run() {
 
 
         // my enroll course related apis
-        app.get('/myEnrollCourse/:email',verifyToken, async (req, res) => {
+        app.get('/myEnrollCourse/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
-            const query = {email}
+            const query = { email }
             const result = await enrollCollection.find(query).toArray();
             res.send(result);
         })
@@ -294,7 +317,7 @@ async function run() {
             const result = await enrollCollection.insertOne(course);
             res.send(result);
         })
-       
+
 
 
 
