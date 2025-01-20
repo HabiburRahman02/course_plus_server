@@ -131,6 +131,31 @@ async function run() {
             res.send(result);
         })
 
+        app.patch('/user/teacher/:email', verifyToken, verifyAdmin, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email }
+            const updatedDoc = {
+                $set: {
+                    role: 'teacher'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc);
+            res.send(result);
+        })
+
+        app.patch('/user/student/:email', verifyToken, verifyAdmin, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email }
+            const updatedDoc = {
+                $set: {
+                    role: 'student'
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc);
+            res.send(result);
+        })
+
+
 
         // course related apis
         app.post('/courses', async (req, res) => {
@@ -237,11 +262,11 @@ async function run() {
         //     const count = await assignmentCollection.estimatedDocumentCount();
         //     res.send(count)
         // })
-        app.get('/assignments/:byCourseId',verifyToken, async (req, res) => {
-            const id = req.params.byCourseId;
+        app.get('/assignmentsByCourseId/:id', async (req, res) => {
+            const id = req.params.id;
             const query = { courseId: id };
             const result = await assignmentCollection.find(query).toArray();
-            res.send(result); 
+            res.send(result);
         })
 
         app.get('/assignment/:id', async (req, res) => {
@@ -260,6 +285,13 @@ async function run() {
 
 
         // teachers related apis
+        app.get('/teacherByEmail/:email', async (req, res) => {
+            const email = req.params.id;
+            const query = { email }
+            const result = await teacherCollection.findOne(query);
+            res.send(result);
+        })
+
         app.get('/teachers', async (req, res) => {
             const result = await teacherCollection.find().toArray();
             res.send(result);
@@ -305,6 +337,12 @@ async function run() {
 
 
         // my enroll course related apis
+        app.get('/enroll/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId };
+            const result = await enrollCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/myEnrollCourse/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const query = { email }
