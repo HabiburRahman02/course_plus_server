@@ -286,7 +286,7 @@ async function run() {
 
         // teachers related apis
         app.get('/teacherByEmail/:email', async (req, res) => {
-            const email = req.params.id;
+            const email = req.params.email;
             const query = { email }
             const result = await teacherCollection.findOne(query);
             res.send(result);
@@ -314,7 +314,6 @@ async function run() {
             const result = await teacherCollection.updateOne(query, updatedDoc);
             res.send(result)
         })
-
         app.patch('/allTeacherRejected/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
@@ -326,6 +325,20 @@ async function run() {
             const result = await teacherCollection.updateOne(query, updatedDoc);
             res.send(result)
         })
+
+        app.patch('/requestForPending/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const updatedDoc = {
+                $set: {
+                    status: 'pending'
+                }
+            }
+            const result = await teacherCollection.updateOne(query, updatedDoc);
+            res.send(result)
+        })
+
+
 
 
 
