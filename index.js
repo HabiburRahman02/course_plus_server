@@ -8,7 +8,14 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
 
 // middleware
-app.use(cors())
+cors({
+    origin: [
+        "http://localhost:5173",
+        "https://courseplus-b5b5c.web.app",
+        "https://courseplus-b5b5c.firebaseapp.com",
+    ],
+    credentials: true,
+})
 app.use(express.json())
 // console.log(stripe);
 
@@ -369,13 +376,13 @@ async function run() {
         // feedback related apis
         app.get('/feedbacks', async (req, res) => {
             const result = await feedbackCollection
-            .find()
-            .limit(10)
-            .toArray();
+                .find()
+                .limit(10)
+                .toArray();
             res.send(result);
         })
 
-        app.post('/feedbacks',async(req,res)=>{
+        app.post('/feedbacks', async (req, res) => {
             const feedback = req.body;
             const result = await feedbackCollection.insertOne(feedback);
             res.send(result)
@@ -429,10 +436,20 @@ async function run() {
         })
 
 
+        // count for apis
+        app.get('/countForApi', async (req, res) => {
+            const userCount = await usersCollection.estimatedDocumentCount();
+            const courseCount = await courseCollection.estimatedDocumentCount();
+            const enrollCount = await enrollCollection.estimatedDocumentCount();
+
+            res.send({ userCount, courseCount, enrollCount })
+        })
+
+
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
