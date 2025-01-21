@@ -35,6 +35,7 @@ async function run() {
         const usersCollection = client.db('courseDB').collection('users');
         const teacherCollection = client.db('courseDB').collection('teachers');
         const enrollCollection = client.db('courseDB').collection('enrolls');
+        const submissionCollection = client.db('courseDB').collection('assignmentSubmission');
 
 
         // jwt related apis
@@ -258,10 +259,6 @@ async function run() {
 
 
         // assignment related apis
-        // app.get('/assignments/countAss',async(req,res)=>{
-        //     const count = await assignmentCollection.estimatedDocumentCount();
-        //     res.send(count)
-        // })
         app.get('/assignmentsByCourseId/:id', async (req, res) => {
             const id = req.params.id;
             const query = { courseId: id };
@@ -279,6 +276,13 @@ async function run() {
         app.post('/assignments', async (req, res) => {
             const assignment = req.body;
             const result = await assignmentCollection.insertOne(assignment);
+            res.send(result);
+        })
+
+        // assignmentSubmission
+        app.post('/assignmentSubmission', async (req, res) => {
+            const submission = req.body;
+            const result = await submissionCollection.insertOne(submission);
             res.send(result);
         })
 
@@ -319,7 +323,7 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const updatedDoc = {
                 $set: {
-                    status: 'rejected'
+                    status: 'approved'
                 }
             }
             const result = await teacherCollection.updateOne(query, updatedDoc);
@@ -350,6 +354,12 @@ async function run() {
 
 
         // my enroll course related apis
+        app.get('/enrollByEnrollId/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { enrollId: id };
+            const result = await enrollCollection.find(query).toArray();
+            res.send(result);
+        })
         app.get('/enroll/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId };
