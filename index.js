@@ -189,12 +189,17 @@ async function run() {
             res.send(result)
         })
 
-        // app.get('/course/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) };
-        //     const result = await courseCollection.findOne(query);
-        //     res.send(result);
-        // })
+        app.patch('/courseForEnrollId/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedDoc = {
+                $inc: {
+                    totalEnrollment: 1
+                }
+            }
+            const result = await courseCollection.updateOne(filter, updatedDoc);
+            res.send(result);
+        })
 
         app.get('/popular-courses', async (req, res) => {
             const result = await courseCollection
@@ -276,6 +281,18 @@ async function run() {
         app.post('/assignments', async (req, res) => {
             const assignment = req.body;
             const result = await assignmentCollection.insertOne(assignment);
+            res.send(result);
+        })
+
+        app.patch('/assignments/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const updatedDoc = {
+                $inc: {
+                    submissionCount: 1
+                }
+            }
+            const result = await assignmentCollection.updateOne(filter, updatedDoc);
             res.send(result);
         })
 
