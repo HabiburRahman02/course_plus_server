@@ -202,8 +202,11 @@ async function run() {
         })
 
         app.get('/popular-courses', async (req, res) => {
+            const filter = {
+                status: 'approved'
+            }
             const result = await courseCollection
-                .find()
+                .find(filter)
                 .sort({ totalEnrollment: -1 })
                 .limit(4)
                 .toArray()
@@ -365,8 +368,17 @@ async function run() {
 
         // feedback related apis
         app.get('/feedbacks', async (req, res) => {
-            const result = await feedbackCollection.find().toArray();
+            const result = await feedbackCollection
+            .find()
+            .limit(10)
+            .toArray();
             res.send(result);
+        })
+
+        app.post('/feedbacks',async(req,res)=>{
+            const feedback = req.body;
+            const result = await feedbackCollection.insertOne(feedback);
+            res.send(result)
         })
 
 
