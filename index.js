@@ -8,14 +8,14 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
 
 // middleware
-cors({
+app.use(cors({
     origin: [
         "http://localhost:5173",
         "https://courseplus-b5b5c.web.app",
         "https://courseplus-b5b5c.firebaseapp.com",
     ],
     credentials: true,
-})
+}))
 app.use(express.json())
 // console.log(stripe);
 
