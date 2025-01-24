@@ -365,7 +365,7 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const updatedDoc = {
                 $set: {
-                    status: 'approved'
+                    status: 'rejected'
                 }
             }
             const result = await teacherCollection.updateOne(query, updatedDoc);
