@@ -200,7 +200,12 @@ async function run() {
         })
 
         app.get('/courses', async (req, res) => {
-            const result = await courseCollection.find({ status: "approved" }).toArray();
+            const {sortOrder} = req.query;
+            const sortStyle = sortOrder === 'asc' ? {price : 1} : {price: -1}
+            const result = await courseCollection.
+            find({ status: "approved" })
+            .sort(sortStyle)
+            .toArray();
             res.send(result);
         })
 
